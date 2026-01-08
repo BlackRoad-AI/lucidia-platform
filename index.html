@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucidia - Your Personal AI Companion</title>
+    <meta name="description" content="AI built on transparency, consent, and care. An AI companion that actually knows you, remembers context, and respects your privacy.">
+    <style>
+        :root {
+            --black: #000000;
+            --white: #FFFFFF;
+            --amber: #F5A623;
+            --hot-pink: #FF1D6C;
+            --electric-blue: #2979FF;
+            --violet: #9C27B0;
+            --space-xs: 8px;
+            --space-sm: 13px;
+            --space-md: 21px;
+            --space-lg: 34px;
+            --space-xl: 55px;
+            --space-2xl: 89px;
+            --space-3xl: 144px;
+            --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            line-height: 1.618;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 55px 55px;
+            animation: grid-move 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(55px, 55px); }
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            top: 20%;
+            left: 10%;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--violet), var(--electric-blue));
+        }
+
+        .orb-2 {
+            top: 60%;
+            right: 10%;
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--hot-pink), var(--amber));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -30px) scale(1.1); }
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            padding: var(--space-md) var(--space-xl);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        nav .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--violet), var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s var(--ease);
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--violet);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(156, 39, 176, 0.4);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero {
+            padding: calc(var(--space-3xl) * 2) 0 var(--space-3xl);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 900;
+            margin-bottom: var(--space-md);
+            line-height: 1.1;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--violet) 0%, var(--electric-blue) 38.2%, var(--hot-pink) 61.8%, var(--amber) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--space-xl);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .principles {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: var(--space-xl);
+            margin: var(--space-3xl) 0;
+        }
+
+        .principles h2 {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+        }
+
+        .principle {
+            text-align: center;
+            padding: var(--space-lg);
+        }
+
+        .principle-icon {
+            font-size: 64px;
+            margin-bottom: var(--space-md);
+        }
+
+        .principle h3 {
+            font-size: 24px;
+            margin-bottom: var(--space-sm);
+            color: var(--violet);
+        }
+
+        .principle p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-3xl) 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            transition: all 0.3s var(--ease);
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-4px);
+            border-color: var(--violet);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-md);
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: var(--space-sm);
+            color: var(--violet);
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .comparison {
+            margin: var(--space-3xl) 0;
+        }
+
+        .comparison h2 {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-xl);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .comparison-col {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: var(--space-lg);
+        }
+
+        .comparison-col.highlight {
+            border: 2px solid var(--violet);
+            background: rgba(156, 39, 176, 0.05);
+        }
+
+        .comparison-col h3 {
+            font-size: 24px;
+            margin-bottom: var(--space-md);
+        }
+
+        .comparison-col ul {
+            list-style: none;
+        }
+
+        .comparison-col li {
+            padding: var(--space-sm) 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .bad li::before {
+            content: '❌';
+            margin-right: var(--space-sm);
+        }
+
+        .good li::before {
+            content: '✨';
+            margin-right: var(--space-sm);
+        }
+
+        .pricing {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            padding: var(--space-3xl);
+            margin: var(--space-3xl) 0;
+            text-align: center;
+        }
+
+        .pricing h2 {
+            font-size: 56px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--space-lg);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: var(--space-xl);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid var(--violet);
+            background: rgba(156, 39, 176, 0.05);
+        }
+
+        .pricing-card h3 {
+            font-size: 32px;
+            margin-bottom: var(--space-md);
+        }
+
+        .price {
+            font-size: 56px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--violet), var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: var(--space-lg) 0;
+        }
+
+        .price span {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .pricing-card ul {
+            list-style: none;
+            text-align: left;
+            margin: var(--space-lg) 0;
+        }
+
+        .pricing-card li {
+            padding: var(--space-xs) 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .pricing-card li::before {
+            content: '✓';
+            color: var(--violet);
+            margin-right: var(--space-sm);
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: var(--space-xl) 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 42px; }
+            .principles-grid { grid-template-columns: 1fr; }
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <nav>
+        <div class="container">
+            <div class="logo">✨ Lucidia</div>
+            <a href="#pricing" class="btn btn-primary">Meet Lucidia</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>AI That Actually<br><span class="gradient-text">Knows You</span></h1>
+            <p>Meet Lucidia: Your personal AI companion built on transparency, consent, and care. Not a chatbot. A partner.</p>
+            <div style="display: flex; gap: var(--space-md); justify-content: center; margin-top: var(--space-xl);">
+                <a href="#pricing" class="btn btn-primary" style="font-size: 20px; padding: var(--space-md) var(--space-2xl);">Start Your Journey →</a>
+            </div>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.5); margin-top: var(--space-md);">More info: lucidia.earth</p>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="principles">
+            <h2>Built on Three Principles</h2>
+            <div class="principles-grid">
+                <div class="principle">
+                    <div class="principle-icon">🔍</div>
+                    <h3>Transparency</h3>
+                    <p>You see exactly how Lucidia thinks, what data she uses, and why she responds the way she does.</p>
+                </div>
+
+                <div class="principle">
+                    <div class="principle-icon">🤝</div>
+                    <h3>Consent</h3>
+                    <p>Your data is yours. Lucidia never shares it, trains on it, or uses it without your explicit permission.</p>
+                </div>
+
+                <div class="principle">
+                    <div class="principle-icon">💜</div>
+                    <h3>Care</h3>
+                    <p>Lucidia remembers you, understands context, and adapts to your needs. Not generic. Personal.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2 style="text-align: center; font-size: 48px; margin-bottom: var(--space-xl);">What Makes Lucidia Different</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>Context Memory</h3>
+                <p>Lucidia remembers your conversations, preferences, and context across all interactions. No repeating yourself.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Personalized Learning</h3>
+                <p>Adapts to your communication style, interests, and needs. Becomes more helpful over time.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Privacy First</h3>
+                <p>End-to-end encrypted. Your conversations never train other models. Export or delete anytime.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Natural Conversations</h3>
+                <p>No robotic responses. Lucidia understands nuance, emotion, and context like a real companion.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>Your Knowledge Base</h3>
+                <p>Feed Lucidia your documents, notes, and files. She becomes an expert on your world.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Multi-Modal</h3>
+                <p>Text, voice, images, code. Lucidia works across all formats seamlessly.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="comparison">
+            <h2>Why Not Just Use ChatGPT?</h2>
+            <div class="comparison-grid">
+                <div class="comparison-col bad">
+                    <h3>Generic AI (ChatGPT, etc.)</h3>
+                    <ul>
+                        <li>Forgets context between sessions</li>
+                        <li>Generic responses for everyone</li>
+                        <li>Your data trains their models</li>
+                        <li>No long-term memory</li>
+                        <li>Can't access your personal files</li>
+                        <li>One-size-fits-all personality</li>
+                        <li>No privacy guarantees</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-col good highlight">
+                    <h3>Lucidia</h3>
+                    <ul>
+                        <li>Infinite context memory</li>
+                        <li>Learns and adapts to YOU</li>
+                        <li>Your data stays private</li>
+                        <li>Remembers everything you share</li>
+                        <li>Integrated with your files</li>
+                        <li>Personality evolves with you</li>
+                        <li>End-to-end encrypted</li>
+                        <li>Export/delete anytime</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div style="background: rgba(255, 255, 255, 0.02); border-radius: 24px; padding: var(--space-xl); margin: var(--space-3xl) 0;">
+            <h2 style="text-align: center; font-size: 36px; margin-bottom: var(--space-lg);">Use Cases</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg);">
+                <div style="padding: var(--space-md);">
+                    <h4 style="color: var(--violet); margin-bottom: var(--space-sm); font-size: 20px;">Research Partner</h4>
+                    <p style="color: rgba(255,255,255,0.7);">Feed Lucidia papers, docs, and articles. She becomes your research assistant with perfect recall.</p>
+                </div>
+                <div style="padding: var(--space-md);">
+                    <h4 style="color: var(--violet); margin-bottom: var(--space-sm); font-size: 20px;">Creative Collaborator</h4>
+                    <p style="color: rgba(255,255,255,0.7);">Brainstorm ideas, write drafts, iterate on creative work. Lucidia learns your style.</p>
+                </div>
+                <div style="padding: var(--space-md);">
+                    <h4 style="color: var(--violet); margin-bottom: var(--space-sm); font-size: 20px;">Learning Companion</h4>
+                    <p style="color: rgba(255,255,255,0.7);">Study anything with an AI tutor that adapts to your learning style and remembers your progress.</p>
+                </div>
+                <div style="padding: var(--space-md);">
+                    <h4 style="color: var(--violet); margin-bottom: var(--space-sm); font-size: 20px;">Personal Assistant</h4>
+                    <p style="color: rgba(255,255,255,0.7);">Manage tasks, remember details, help with decisions. Lucidia knows your preferences.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="container">
+        <div class="pricing">
+            <h2>Simple Pricing</h2>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Personal</h3>
+                    <div class="price">$29<span>/month</span></div>
+                    <ul>
+                        <li>Unlimited conversations</li>
+                        <li>Infinite context memory</li>
+                        <li>Personal knowledge base</li>
+                        <li>File uploads (100MB)</li>
+                        <li>Multi-modal (text, voice, image)</li>
+                        <li>Priority response times</li>
+                        <li>Export all data</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);">Start Free Trial →</a>
+                </div>
+
+                <div class="pricing-card featured">
+                    <h3>Team</h3>
+                    <div class="price">$149<span>/month</span></div>
+                    <ul>
+                        <li>Everything in Personal</li>
+                        <li>Shared team knowledge base</li>
+                        <li>File uploads (1GB per member)</li>
+                        <li>Team collaboration features</li>
+                        <li>Admin controls</li>
+                        <li>Priority support</li>
+                        <li>Custom integrations</li>
+                        <li>API access</li>
+                    </ul>
+                    <a href="mailto:blackroad.systems@gmail.com" class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);">Contact Sales →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div style="background: rgba(255, 255, 255, 0.02); border-radius: 24px; padding: var(--space-3xl); text-align: center; margin: var(--space-3xl) 0;">
+            <h2 style="font-size: 56px; margin-bottom: var(--space-md);">Meet Your AI Companion</h2>
+            <p style="font-size: 24px; color: rgba(255, 255, 255, 0.7); margin-bottom: var(--space-xl);">Built on transparency, consent, and care. An AI that actually knows you.</p>
+            <a href="https://lucidia.earth" class="btn btn-primary" style="font-size: 20px; padding: var(--space-lg) var(--space-2xl);">Visit Lucidia.earth →</a>
+            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.5); margin-top: var(--space-md);">14-day free trial • No credit card required</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 BlackRoad AI, Inc. All rights reserved.</p>
+            <p style="margin-top: var(--space-sm);">AI built with care, not just code.</p>
+        </div>
+    </footer>
+</body>
+</html>
