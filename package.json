@@ -1,0 +1,18 @@
+{
+  "name": "lucidia-platform",
+  "version": "1.0.0",
+  "description": "Lucidia — sovereign AI companion, routed through local Ollama infrastructure",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}

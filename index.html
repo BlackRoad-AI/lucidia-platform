@@ -372,6 +372,98 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
+        /* ── Chat ── */
+        #chat { margin: var(--space-3xl) 0; }
+        #chat h2 { text-align: center; font-size: 48px; margin-bottom: var(--space-md); }
+        #chat .chat-note {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: var(--space-xl);
+        }
+        .chat-window {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .chat-messages {
+            min-height: 320px;
+            max-height: 480px;
+            overflow-y: auto;
+            margin-bottom: var(--space-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        .chat-msg {
+            padding: var(--space-sm) var(--space-md);
+            border-radius: 12px;
+            max-width: 80%;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .chat-msg.user {
+            background: rgba(156,39,176,0.2);
+            border: 1px solid rgba(156,39,176,0.3);
+            align-self: flex-end;
+        }
+        .chat-msg.assistant {
+            background: rgba(41,121,255,0.15);
+            border: 1px solid rgba(41,121,255,0.25);
+            align-self: flex-start;
+        }
+        .chat-msg.system-note {
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            align-self: center;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        .chat-input-row {
+            display: flex;
+            gap: var(--space-sm);
+        }
+        .chat-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: var(--space-sm) var(--space-md);
+            color: var(--white);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus { border-color: var(--violet); }
+        .chat-input::placeholder { color: rgba(255,255,255,0.35); }
+        .chat-send {
+            background: var(--violet);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            padding: var(--space-sm) var(--space-lg);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+        .chat-routing-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            background: rgba(41,121,255,0.2);
+            border: 1px solid rgba(41,121,255,0.4);
+            color: rgba(255,255,255,0.6);
+            margin-bottom: var(--space-md);
+        }
+
         @media (max-width: 768px) {
             .hero h1 { font-size: 42px; }
             .principles-grid { grid-template-columns: 1fr; }
@@ -387,7 +479,10 @@
     <nav>
         <div class="container">
             <div class="logo">✨ Lucidia</div>
-            <a href="#pricing" class="btn btn-primary">Meet Lucidia</a>
+            <div style="display:flex;gap:var(--space-md);align-items:center;">
+                <a href="#chat" style="color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;">Chat</a>
+                <a href="#pricing" class="btn btn-primary">Meet Lucidia</a>
+            </div>
         </div>
     </nav>
 
@@ -573,11 +668,87 @@
         </div>
     </section>
 
+    <!-- ── Chat ─────────────────────────────────────────────────────────── -->
+    <section id="chat" class="container">
+        <h2>Chat with Lucidia</h2>
+        <p class="chat-note">
+            Mention <code>@lucidia</code> or <code>@blackboxprogramming</code> to address a specific persona.<br>
+            All messages route to your <strong>local Ollama</strong> — no OpenAI, Anthropic, or Codex involved.
+        </p>
+        <div class="chat-window">
+            <span class="chat-routing-badge">🖥️ Routing: local Ollama</span>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg system-note">Say hello — or mention @lucidia / @blackboxprogramming</div>
+            </div>
+            <div class="chat-input-row">
+                <input
+                    id="chatInput"
+                    class="chat-input"
+                    type="text"
+                    placeholder="Message @lucidia or @blackboxprogramming…"
+                    autocomplete="off"
+                />
+                <button id="chatSend" class="chat-send">Send</button>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <div class="container">
             <p>&copy; 2026 BlackRoad AI, Inc. All rights reserved.</p>
             <p style="margin-top: var(--space-sm);">AI built with care, not just code.</p>
         </div>
     </footer>
+
+    <script>
+        // Mirrors OLLAMA_TRIGGER_PATTERN in server.js — keep in sync.
+        const MENTION_RE = /^@(blackboxprogramming|lucidia)\b/i;
+
+        const messagesEl = document.getElementById('chatMessages');
+        const inputEl    = document.getElementById('chatInput');
+        const sendBtn    = document.getElementById('chatSend');
+        const history    = [];
+
+        function appendMsg(role, text) {
+            const div = document.createElement('div');
+            div.className = 'chat-msg ' + role;
+            div.textContent = text;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = inputEl.value.trim();
+            if (!message) return;
+
+            inputEl.value = '';
+            sendBtn.disabled = true;
+            appendMsg('user', message);
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, history }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Request failed');
+
+                history.push({ role: 'user', content: message });
+                history.push({ role: 'assistant', content: data.reply });
+                appendMsg('assistant', data.reply);
+            } catch (err) {
+                appendMsg('system-note', '⚠️ ' + err.message);
+            } finally {
+                sendBtn.disabled = false;
+                inputEl.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+    </script>
 </body>
 </html>

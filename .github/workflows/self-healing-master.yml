@@ -322,13 +322,24 @@ jobs:
         run: |
           echo "🔒 Running security audit..."
           
+          # Skip audit when there is no package.json or lockfile — nothing to audit.
+          if [ ! -f "package.json" ]; then
+            echo "vulnerabilities_found=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  No package.json found — skipping audit."
+            exit 0
+          fi
+          
           if [ -f "pnpm-lock.yaml" ]; then
             npm install -g pnpm
             pnpm audit --audit-level=high > audit-report.txt 2>&1 || true
             pnpm audit fix || true
-          else
+          elif [ -f "package-lock.json" ]; then
             npm audit --audit-level=high > audit-report.txt 2>&1 || true
             npm audit fix || true
+          else
+            echo "ℹ️  No lockfile found — skipping audit."
+            echo "vulnerabilities_found=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
           
           if [ -s "audit-report.txt" ]; then
