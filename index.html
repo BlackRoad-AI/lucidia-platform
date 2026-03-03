@@ -377,6 +377,140 @@
             .principles-grid { grid-template-columns: 1fr; }
             .comparison-grid { grid-template-columns: 1fr; }
         }
+
+        /* ── Chat widget ─────────────────────────────────────────────── */
+        #chat-toggle {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 9999;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--violet), var(--electric-blue));
+            border: none;
+            cursor: pointer;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 24px rgba(156,39,176,0.5);
+            transition: transform 0.2s var(--ease);
+        }
+        #chat-toggle:hover { transform: scale(1.1); }
+
+        #chat-panel {
+            position: fixed;
+            bottom: 108px;
+            right: 32px;
+            z-index: 9998;
+            width: 380px;
+            max-width: calc(100vw - 48px);
+            background: rgba(10, 10, 10, 0.97);
+            border: 1px solid rgba(156, 39, 176, 0.4);
+            border-radius: 20px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 8px 48px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+        #chat-panel.open { display: flex; }
+
+        #chat-header {
+            padding: var(--space-md) var(--space-lg);
+            background: linear-gradient(135deg, rgba(156,39,176,0.2), rgba(41,121,255,0.2));
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        #chat-header h4 { font-size: 16px; margin-bottom: 2px; }
+        #chat-header p { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+        #chat-messages {
+            flex: 1;
+            min-height: 260px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding: var(--space-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        .chat-msg {
+            max-width: 88%;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            background: rgba(156, 39, 176, 0.3);
+            border: 1px solid rgba(156,39,176,0.5);
+        }
+        .chat-msg.ai {
+            align-self: flex-start;
+            background: rgba(41, 121, 255, 0.15);
+            border: 1px solid rgba(41,121,255,0.3);
+        }
+        .chat-msg.system {
+            align-self: center;
+            background: rgba(255,255,255,0.05);
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            border: none;
+        }
+
+        #chat-form {
+            display: flex;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        #chat-input {
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: var(--white);
+            padding: var(--space-sm) var(--space-md);
+            font-size: 14px;
+            outline: none;
+        }
+        #chat-input:focus { border-color: var(--violet); }
+        #chat-send {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--violet);
+            border: none;
+            border-radius: 10px;
+            color: var(--white);
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 0.2s var(--ease);
+        }
+        #chat-send:hover { background: var(--electric-blue); }
+        #chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* checkout notification */
+        #checkout-toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9997;
+            background: rgba(156,39,176,0.9);
+            color: var(--white);
+            padding: var(--space-sm) var(--space-xl);
+            border-radius: 12px;
+            font-size: 16px;
+            display: none;
+            animation: fadeInOut 4s forwards;
+        }
+        @keyframes fadeInOut {
+            0%   { opacity: 0; }
+            10%  { opacity: 1; }
+            80%  { opacity: 1; }
+            100% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -542,7 +676,7 @@
                         <li>Priority response times</li>
                         <li>Export all data</li>
                     </ul>
-                    <a href="#" class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);">Start Free Trial →</a>
+                    <a href="/api/stripe/checkout?plan=personal" class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);">Start Free Trial →</a>
                 </div>
 
                 <div class="pricing-card featured">
@@ -558,7 +692,7 @@
                         <li>Custom integrations</li>
                         <li>API access</li>
                     </ul>
-                    <a href="mailto:blackroad.systems@gmail.com" class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);">Contact Sales →</a>
+                    <a href="/api/stripe/checkout?plan=team" class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);">Start Team Plan →</a>
                 </div>
             </div>
         </div>
@@ -573,11 +707,125 @@
         </div>
     </section>
 
+    <!-- ── Checkout toast ───────────────────────────────────────────────── -->
+    <div id="checkout-toast"></div>
+
+    <!-- ── Ollama chat widget ───────────────────────────────────────────── -->
+    <button id="chat-toggle" title="Chat with Lucidia via Ollama">🤖</button>
+
+    <div id="chat-panel" role="dialog" aria-label="Lucidia AI Chat">
+        <div id="chat-header">
+            <h4>✨ Lucidia via Ollama</h4>
+            <p>Type @lucidia, @copilot, or @blackboxprogramming — runs on your hardware</p>
+        </div>
+        <div id="chat-messages">
+            <div class="chat-msg system">Say hello! Try: <em>@lucidia what can you do?</em></div>
+        </div>
+        <form id="chat-form" autocomplete="off">
+            <input id="chat-input" type="text" placeholder="@lucidia …" aria-label="Message Lucidia" />
+            <button id="chat-send" type="submit">Send</button>
+        </form>
+    </div>
+
     <footer>
         <div class="container">
             <p>&copy; 2026 BlackRoad AI, Inc. All rights reserved.</p>
             <p style="margin-top: var(--space-sm);">AI built with care, not just code.</p>
         </div>
     </footer>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var toggle = document.getElementById('chat-toggle');
+        var panel  = document.getElementById('chat-panel');
+        var form   = document.getElementById('chat-form');
+        var input  = document.getElementById('chat-input');
+        var send   = document.getElementById('chat-send');
+        var msgs   = document.getElementById('chat-messages');
+        var history = [];
+        // Must match OLLAMA_TRIGGER_PATTERN in server.js
+        var MENTION_RE = /(?:^|\s)@(copilot|lucidia|blackboxprogramming)\b/i;
+        var MAX_HISTORY_MESSAGES = 40; // 20 user + 20 assistant turns
+
+        // Toggle chat panel
+        toggle.addEventListener('click', function () {
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) input.focus();
+        });
+
+        function addMsg(text, type) {
+            var div = document.createElement('div');
+            div.className = 'chat-msg ' + type;
+            div.textContent = text;
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        // Submit message
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var message = input.value.trim();
+            if (!message) return;
+
+            var mention = MENTION_RE.test(message);
+            if (!mention) {
+                addMsg('ℹ️ Prefix your message with @lucidia, @copilot, or @blackboxprogramming to route it to Ollama.', 'system');
+                return;
+            }
+
+            addMsg(message, 'user');
+            input.value = '';
+            send.disabled = true;
+
+            var thinkingEl = document.createElement('div');
+            thinkingEl.className = 'chat-msg system';
+            thinkingEl.textContent = '…thinking';
+            msgs.appendChild(thinkingEl);
+            msgs.scrollTop = msgs.scrollHeight;
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, history: history })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                msgs.removeChild(thinkingEl);
+                if (data.error) {
+                    addMsg('⚠️ ' + data.error, 'system');
+                } else {
+                    addMsg(data.reply, 'ai');
+                    history.push({ role: 'user', content: message });
+                    history.push({ role: 'assistant', content: data.reply });
+                    if (history.length > MAX_HISTORY_MESSAGES) history = history.slice(-MAX_HISTORY_MESSAGES);
+                }
+            })
+            .catch(function (err) {
+                msgs.removeChild(thinkingEl);
+                addMsg('⚠️ Network error: ' + err.message, 'system');
+            })
+            .finally(function () {
+                send.disabled = false;
+                input.focus();
+            });
+        });
+
+        // Show checkout toast if returning from Stripe
+        var params = new URLSearchParams(window.location.search);
+        var toast = document.getElementById('checkout-toast');
+        if (params.get('checkout') === 'success') {
+            toast.textContent = '🎉 Welcome to Lucidia! Your subscription is active.';
+            toast.style.display = 'block';
+            setTimeout(function () { toast.style.display = 'none'; }, 4500);
+        } else if (params.get('checkout') === 'cancelled') {
+            toast.textContent = '↩️ Checkout cancelled — you can always come back!';
+            toast.style.background = 'rgba(41,121,255,0.9)';
+            toast.style.display = 'block';
+            setTimeout(function () { toast.style.display = 'none'; }, 4500);
+        }
+    }());
+    </script>
 </body>
 </html>
