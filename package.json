@@ -1,0 +1,17 @@
+{
+  "name": "lucidia-platform",
+  "version": "1.0.0",
+  "description": "Lucidia — Personal AI companion powered by Ollama (local-first)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "stripe": "^14.21.0"
+  }
+}
