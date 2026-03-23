@@ -1,3 +1,11 @@
+# lucidia-platform
+
+> ARCHIVED: Consolidated into BlackRoad-OS/lucidia-core
+
+Part of the [BlackRoad OS](https://blackroad.io) ecosystem — [BlackRoad-AI](https://github.com/BlackRoad-AI)
+
+---
+
 # Lucidia Platform — BlackRoad AI
 
 **[Lucidia](https://lucidia.earth)** is a personal AI companion built by **[BlackRoad AI](https://blackroadai.com)** on transparency, consent, and care. Your AI that actually knows you.
@@ -69,4 +77,3 @@ Part of **BlackRoad**'s sovereign AI model ecosystem — the API layer above Goo
 PROPRIETARY - NOT for commercial resale. Testing purposes only.
 
 See [LICENSE](LICENSE) for complete terms.
-
